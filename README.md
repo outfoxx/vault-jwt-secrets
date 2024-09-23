@@ -90,7 +90,7 @@ vault write -f jwt/sign/test-role
 5. Retrieve JWKs for verification
 
 ```bash
-curl https://$VAULT_ADDRESS/v1/jwt/jwk
+curl https://$VAULT_ADDRESS/v1/jwt/jwks
 ```
 
 ## Container
@@ -100,7 +100,7 @@ A containerized version of Vault with the plugin pre-packaged inside is availabl
 
 You can easily start a server in dev mode, that has the plugin enabled, using:
 ```bash
-docker run --rm -P -e VAULT_DEV_ROOT_TOKEN_ID=root --network=rabbitmq-quickstart outfoxx/vault
+docker run --rm -P -e VAULT_DEV_ROOT_TOKEN_ID=root outfoxx/vault
 ```
 
 ## Configuration
