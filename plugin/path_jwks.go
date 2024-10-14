@@ -19,10 +19,13 @@ package jwtsecrets
 import (
 	"context"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/hashicorp/vault/sdk/helper/keysutil"
 	"github.com/hashicorp/vault/sdk/logical"
+	"golang.org/x/crypto/ed25519"
 	"gopkg.in/square/go-jose.v2"
 	"strconv"
 )
@@ -84,6 +87,7 @@ func (b *backend) getPublicKeys(ctx context.Context, stg logical.Storage, mount 
 		Keys: make([]jose.JSONWebKey, keyCount),
 	}
 
+	logger := b.Logger()
 	keyIdx := 0
 	for version := policy.MinDecryptionVersion; version <= policy.LatestVersion; version++ {
 
@@ -92,16 +96,26 @@ func (b *backend) getPublicKeys(ctx context.Context, stg logical.Storage, mount 
 			continue
 		}
 
-		if key.FormattedPublicKey != "" {
+		if policy.Type == keysutil.KeyType_ED25519 {
+			keyBytes, err := base64.StdEncoding.DecodeString(key.FormattedPublicKey)
+			if err != nil {
+				logger.Error("Failed to decode ED25519 public key", "public_key", key.FormattedPublicKey, "error", err)
+				continue
+			}
+			jwkSet.Keys[keyIdx].Key = ed25519.PublicKey(keyBytes)
+		} else if key.FormattedPublicKey != "" {
 			block, _ := pem.Decode([]byte(key.FormattedPublicKey))
 			if block == nil {
+				logger.Error("Failed to decode PEM key", "public_key", key.FormattedPublicKey)
 				continue
 			}
 
-			jwkSet.Keys[keyIdx].Key, err = x509.ParsePKIXPublicKey(block.Bytes)
+			publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
 			if err != nil {
+				logger.Error("Failed to parse PKIX public key", "public_key", key.FormattedPublicKey, "error", err)
 				continue
 			}
+			jwkSet.Keys[keyIdx].Key = publicKey
 		} else if key.RSAKey != nil {
 			jwkSet.Keys[keyIdx].Key = &key.RSAKey.PublicKey
 		}

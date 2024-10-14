@@ -169,6 +169,8 @@ func (b *backend) getPolicy(ctx context.Context, stg logical.Storage, config *Co
 		default:
 			err = errutil.InternalError{Err: "unsupported RSA key size"}
 		}
+	case jose.EdDSA:
+		polReq.KeyType = keysutil.KeyType_ED25519
 	case jose.ES256:
 		polReq.KeyType = keysutil.KeyType_ECDSA_P256
 	case jose.ES384:
