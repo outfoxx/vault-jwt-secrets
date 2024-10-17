@@ -102,6 +102,9 @@ func (ps *PolicySigner) sign(input []byte) ([]byte, error) {
 		hashType = keysutil.HashTypeSHA2512
 		hash = crypto.SHA512
 		sigAlg = "pkcs1v15"
+	case jose.EdDSA:
+		hashType = keysutil.HashTypeNone
+		sigAlg = ""
 	case jose.ES256:
 		hashType = keysutil.HashTypeSHA2256
 		hash = crypto.SHA256
@@ -120,11 +123,15 @@ func (ps *PolicySigner) sign(input []byte) ([]byte, error) {
 
 	keyVersion := ps.Policy.LatestVersion
 
-	hasher := hash.New()
-
-	// According to documentation, Write() on hash never fails
-	_, _ = hasher.Write(input)
-	hashedInput := hasher.Sum(nil)
+	var hashedInput []byte
+	if hashType == keysutil.HashTypeNone {
+		hashedInput = input
+	} else {
+		hasher := hash.New()
+		// According to documentation, Write() on hash never fails
+		_, _ = hasher.Write(input)
+		hashedInput = hasher.Sum(nil)
+	}
 
 	result, err := ps.Policy.Sign(keyVersion, nil, hashedInput, hashType, sigAlg, keysutil.MarshalingTypeJWS)
 	if err != nil {

@@ -9,6 +9,7 @@ require (
 	github.com/hashicorp/vault/api v1.10.0
 	github.com/hashicorp/vault/sdk v0.10.2
 	github.com/mariuszs/friendlyid-go v0.0.0-20200911181514-555cced97798
+	golang.org/x/crypto v0.12.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
@@ -65,7 +66,6 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/stretchr/testify v1.8.3 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/mod v0.9.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect

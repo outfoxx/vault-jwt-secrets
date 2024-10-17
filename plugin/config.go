@@ -48,7 +48,7 @@ var DefaultAllowedClaims = []string{"sub", "aud"}
 var ReservedClaims = []string{"iss", "exp", "nbf", "iat", "jti"}
 var ReservedHeaders = []string{"kid", "alg", "enc", "zip", "crit"}
 
-var AllowedSignatureAlgorithmNames = []string{string(jose.ES256), string(jose.ES384), string(jose.ES512), string(jose.RS256), string(jose.RS384), string(jose.RS512)}
+var AllowedSignatureAlgorithmNames = []string{string(jose.EdDSA), string(jose.ES256), string(jose.ES384), string(jose.ES512), string(jose.RS256), string(jose.RS384), string(jose.RS512)}
 var AllowedRSAKeyBits = []int{2048, 3072, 4096}
 
 // Config holds all configuration for the backend.
@@ -186,6 +186,8 @@ func (b *backend) saveConfig(ctx context.Context, stg logical.Storage, config *C
 		default:
 			err = errutil.InternalError{Err: "unsupported RSA key size"}
 		}
+	case jose.EdDSA:
+		policy.Type = keysutil.KeyType_ED25519
 	case jose.ES256:
 		policy.Type = keysutil.KeyType_ECDSA_P256
 	case jose.ES384:

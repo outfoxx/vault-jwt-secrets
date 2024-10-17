@@ -43,6 +43,7 @@ verification as long as any JWTs signed with them are valid.
 The plugin supports a subset of the asymmetric encryption algorithms outlined in the JWT
 specification.
 
+* EdDSA
 * ES256
 * ES384
 * ES512
